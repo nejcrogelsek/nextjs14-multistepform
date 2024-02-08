@@ -5,7 +5,7 @@ export const FormDataSchema = z.object({
     first_name: z.string().min(1, 'First name is required'),
     last_name: z.string().min(1, 'Last name is required'),
     nickname: z.string().optional(),
-    phone_numbers: z.string().min(1, 'Phone number is required'),
+    phone_numbers: z.array(z.object({ number: z.string() })).min(1, 'Phone number is required'),
     username: z.string().min(1, 'Username is required'),
     password: z.string().min(1, 'Password is required'),
 })

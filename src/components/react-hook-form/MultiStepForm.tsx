@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { SubmitHandler,useForm } from 'react-hook-form'
+import { SubmitHandler, useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 
 import { FormDataSchema } from './schema'
@@ -36,9 +36,15 @@ export default function MultiStepForm() {
         handleSubmit,
         reset,
         trigger,
+        control,
         formState: { errors },
     } = useForm<Inputs>({
         resolver: zodResolver(FormDataSchema),
+    })
+
+    const { fields, append, remove } = useFieldArray({
+        name: 'phone_numbers',
+        control: control,
     })
 
     const processForm: SubmitHandler<Inputs> = (data) => {
@@ -66,10 +72,6 @@ export default function MultiStepForm() {
         if (currentStep > 0) {
             setCurrentStep((step) => step - 1)
         }
-    }
-    
-    const resetForm = () => {
-        setCurrentStep(0)
     }
 
     return (
@@ -162,7 +164,7 @@ export default function MultiStepForm() {
                                 <div className='mt-2'>
                                     <input
                                         id='nickname'
-                                        type='nickname'
+                                        type='text'
                                         {...register('nickname')}
                                         autoComplete='nickname'
                                         className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6'
@@ -185,13 +187,25 @@ export default function MultiStepForm() {
                                     Phone numbers
                                 </label>
                                 <div className='mt-2'>
-                                    <input
-                                        id='phone_numbers'
-                                        type='phone_numbers'
-                                        {...register('phone_numbers')}
-                                        autoComplete='phone_numbers'
-                                        className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6'
-                                    />
+                                    {fields.map((field, index) => (
+                                        <div key={field.id} className='flex items-center justify-center'>
+                                            <input
+                                                id='phone_numbers'
+                                                type='text'
+                                                {...register(`phone_numbers.${index}.number`)}
+                                                autoComplete='phone_numbers'
+                                                className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6'
+                                            />
+                                            {index > 0 && (
+                                                <button type='button' className='btn' onClick={() => remove(index)}>
+                                                    Remove
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button type='button' className='btn' onClick={() => append({ number: '' })}>
+                                        Add phone number
+                                    </button>
                                     {errors.phone_numbers?.message && <p className='mt-2 text-sm text-red-400'>{errors.phone_numbers.message}</p>}
                                 </div>
                             </div>
@@ -211,7 +225,7 @@ export default function MultiStepForm() {
                                 <div className='mt-2'>
                                     <input
                                         id='username'
-                                        type='username'
+                                        type='text'
                                         {...register('username')}
                                         autoComplete='username'
                                         className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6'
@@ -242,7 +256,9 @@ export default function MultiStepForm() {
                     <>
                         <h2 className='text-base font-semibold leading-7 text-gray-900'>Complete</h2>
                         <p className='mt-1 text-sm leading-6 text-gray-600'>Thank you for your submission.</p>
-                        <button onClick={resetForm}>Try again</button>
+                        <button className='btn mt-2' onClick={() => setCurrentStep(0)}>
+                            Try again
+                        </button>
                     </>
                 )}
             </form>
