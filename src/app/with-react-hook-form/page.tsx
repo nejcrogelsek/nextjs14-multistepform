@@ -1,4 +1,4 @@
-import MultiStepForm from '@/components/react-hook-form/MultiStepForm'
+import MultiStepForm from '@/app/with-react-hook-form/components/MultiStepForm'
 
 const ReactHookFormMultiStepPage = () => {
     return (
