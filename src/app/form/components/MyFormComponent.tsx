@@ -4,19 +4,17 @@ import { z } from 'zod'
 import { FormSchema, useForm } from './useForm'
 import { useFieldArray } from './useFieldArray'
 
-// Example usage:
-type FormDataType = z.infer<typeof FormDataSchema>
-const FormDataSchema = z.object({
-    email: z.string().min(1, 'Email is required').email('Invalid email address'),
-    first_name: z.string().min(1, 'First name is required'),
-    last_name: z.string().min(1, 'Last name is required'),
-    nickname: z.string().optional(),
-    phone_numbers: z.array(z.object({ number: z.string().min(1, 'Phone number is required') })).min(1, 'Phone number is required'),
-    username: z.string().min(1, 'Username is required'),
-    password: z.string().min(1, 'Password is required'),
-})
+type FormDataType = {
+    email: string
+    first_name: string
+    last_name: string
+    nickname?: string
+    phone_numbers: { number: string }[]
+    username: string
+    password: string
+}
 
-const formSchema: FormSchema<FormDataType> = {
+const FormDataSchema: FormSchema<FormDataType> = {
     email: z.string().min(1, 'Email is required').email('Invalid email address'),
     first_name: z.string().min(1, 'First name is required'),
     last_name: z.string().min(1, 'Last name is required'),
@@ -37,13 +35,9 @@ function MyFormComponent() {
             password: '',
             username: '',
         },
-        formSchema,
+        FormDataSchema,
     )
-    const { append, remove, values } = useFieldArray([
-        { id: 0, number: '123456' },
-        { id: 1, number: '' },
-    ])
-    console.log('values', values)
+    const { append, remove, values } = useFieldArray([{ number: '123456' }, { number: '' }])
 
     return (
         <form onSubmit={handleSubmit}>
@@ -88,7 +82,7 @@ function MyFormComponent() {
                         )}
                     </div>
                 ))}
-                <button type='button' className='btn' onClick={() => append({ id: values.length, number: '' })}>
+                <button type='button' className='btn' onClick={() => append({ number: '' })}>
                     Add phone number
                 </button>
                 {formData.phone_numbers.error && <div className='text-sm text-red-600'>{formData.phone_numbers.error}</div>}
