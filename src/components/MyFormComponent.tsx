@@ -27,7 +27,7 @@ const userSchema: FormSchema<User> = {
 }
 
 function MyFormComponent() {
-    const { formData, handleChange, validate, isValid } = useForm<User>(
+    const { formData, handleChange, validate, isValid, reset } = useForm<User>(
         {
             first_name: '',
             last_name: '',
@@ -47,7 +47,9 @@ function MyFormComponent() {
         if (!data) {
             return
         }
-        alert(JSON.stringify(data))
+        reset()
+        console.log(data)
+        alert(JSON.stringify(data, null, 2))
     }
 
     return (
@@ -87,13 +89,27 @@ function MyFormComponent() {
                             }}
                         />
                         {index > 0 && (
-                            <button type='button' className='btn' onClick={() => remove(index)}>
+                            <button
+                                type='button'
+                                className='btn'
+                                onClick={() => {
+                                    const newValues = values.filter((item) => item.id !== index)
+                                    handleChange('phone_numbers', newValues)
+                                    remove(index)
+                                }}>
                                 Remove
                             </button>
                         )}
                     </div>
                 ))}
-                <button type='button' className='btn' onClick={() => append({ number: '' })}>
+                <button
+                    type='button'
+                    className='btn'
+                    onClick={() => {
+                        const newValues = [...values, { number: '' }]
+                        handleChange('phone_numbers', newValues)
+                        append({ number: '' })
+                    }}>
                     Add phone number
                 </button>
                 {formData.phone_numbers.error && <div className='text-sm text-red-600'>{formData.phone_numbers.error}</div>}

@@ -49,6 +49,7 @@ export default function MultiStepForm() {
 
     const processForm: SubmitHandler<Inputs> = (data) => {
         console.log(data)
+        alert(JSON.stringify(data, null, 2))
         reset()
     }
 
