@@ -3,11 +3,11 @@ import Link from 'next/link'
 const Header = () => {
     return (
         <ul className='mb-8 flex items-center justify-center'>
-            <li className='font-bold mr-8'>
-                <Link href='/'>HOME</Link>
+            <li className='mr-8 font-bold'>
+                <Link href='/'>FORM</Link>
             </li>
-            <li className='font-bold mr-8'>
-                <Link href='/form'>Form</Link>
+            <li className='mr-8 font-bold'>
+                <Link href='/form'>MULTI STEP FORM</Link>
             </li>
             <li className='font-bold'>
                 <Link href='/with-react-hook-form'>React Hook Form</Link>

@@ -1,23 +1,25 @@
 'use client'
 
+import { FormEvent } from 'react'
 import { z } from 'zod'
-import { FormSchema, useForm } from './useForm'
-import { useFieldArray } from './useFieldArray'
 
-type FormDataType = {
-    email: string
+import { useFieldArray } from './form/useFieldArray'
+import { FormSchema, useForm } from './form/useForm'
+
+type User = {
     first_name: string
     last_name: string
+    email: string
     nickname?: string
     phone_numbers: { number: string }[]
     username: string
     password: string
 }
 
-const FormDataSchema: FormSchema<FormDataType> = {
-    email: z.string().min(1, 'Email is required').email('Invalid email address'),
+const userSchema: FormSchema<User> = {
     first_name: z.string().min(1, 'First name is required'),
     last_name: z.string().min(1, 'Last name is required'),
+    email: z.string().min(1, 'Email is required').email('Invalid email address'),
     nickname: z.string().optional(),
     phone_numbers: z.array(z.object({ number: z.string().min(1, 'Phone number is required') })).min(1, 'Phone number is required'),
     username: z.string().min(1, 'Username is required'),
@@ -25,7 +27,7 @@ const FormDataSchema: FormSchema<FormDataType> = {
 }
 
 function MyFormComponent() {
-    const { formData, handleChange, handleSubmit, isValid } = useForm<FormDataType>(
+    const { formData, handleChange, validate, isValid } = useForm<User>(
         {
             first_name: '',
             last_name: '',
@@ -35,12 +37,21 @@ function MyFormComponent() {
             password: '',
             username: '',
         },
-        FormDataSchema,
+        userSchema,
     )
-    const { append, remove, values } = useFieldArray([{ number: '123456' }, { number: '' }])
+    const { append, remove, values } = useFieldArray([{ number: '' }])
+
+    const onSubmit = (event: FormEvent) => {
+        event.preventDefault()
+        const data = validate()
+        if (!data) {
+            return
+        }
+        alert(JSON.stringify(data))
+    }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
             <div>
                 <label>First name:</label>
                 <input type='text' value={formData.first_name.value} onChange={(e) => handleChange('first_name', e.target.value)} />
@@ -97,7 +108,11 @@ function MyFormComponent() {
                 <input type='text' value={formData.password.value} onChange={(e) => handleChange('password', e.target.value)} />
                 {formData.password.error && <div className='text-sm text-red-600'>{formData.password.error}</div>}
             </div>
-            <button type='submit'>Submit {isValid ? 'true' : 'false'}</button>
+            <button type='submit'>Submit</button>
+            <h1>
+                {' '}
+                Is form state valid? <span className='font-bold'>{isValid ? 'true' : 'false'}</span>
+            </h1>
         </form>
     )
 }

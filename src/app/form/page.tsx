@@ -1,12 +1,11 @@
-import React from 'react'
-import MyFormComponent from './components/MyFormComponent'
+import MyMultiStepFormComponent from '@/components/MyMultiStepFormComponent'
 
-const page = () => {
-  return (
-    <div>
-        <MyFormComponent />
-    </div>
-  )
+const MultiStepFormPage = () => {
+    return (
+        <main>
+            <MyMultiStepFormComponent />
+        </main>
+    )
 }
 
-export default page
+export default MultiStepFormPage

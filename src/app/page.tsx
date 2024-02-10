@@ -1,11 +1,11 @@
-import StartYourCompanyForm from '@/components/without-libraries/StartYourCompanyForm'
+import MyFormComponent from '@/components/MyFormComponent'
 
-function HomePage() {
+function FormPage() {
     return (
         <main className='flex items-center justify-center'>
-            <StartYourCompanyForm />
+            <MyFormComponent />
         </main>
     )
 }
 
-export default HomePage
+export default FormPage
