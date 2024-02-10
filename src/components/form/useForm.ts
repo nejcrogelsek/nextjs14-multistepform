@@ -21,16 +21,24 @@ export type FormSchema<T> = {
     [K in keyof T]: z.ZodType<T[K]>
 }
 
+function formatInitialData<T>(initialData: T, schema: FormSchema<T>) {
+    const initialState: FormData<T> = {} as FormData<T>
+    for (const key in initialData) {
+        if (schema.hasOwnProperty(key)) {
+            initialState[key] = { value: initialData[key] } as FormData<T>[Extract<keyof T, string>]
+        }
+    }
+    return initialState
+}
+
 // Generic function for creating a form builder
 export function useForm<T>(initialData: T, schema: FormSchema<T>) {
     const [isValid, setIsValid] = useState(false)
-    const [formData, setFormData] = useState<FormData<T>>(() => {
-        const initialState: FormData<T> = {} as FormData<T>
-        for (const key in initialData) {
-            initialState[key] = { value: initialData[key] } as FormData<T>[Extract<keyof T, string>]
-        }
-        return initialState
-    })
+    const [formData, setFormData] = useState<FormData<T>>(formatInitialData(initialData, schema))
+
+    const reset = () => {
+        setFormData(formatInitialData(initialData, schema))
+    }
 
     const setError = <K extends keyof T>(key: K, errorMessage: string) => {
         setFormData((prevState) => ({
@@ -57,15 +65,17 @@ export function useForm<T>(initialData: T, schema: FormSchema<T>) {
     const validate = () => {
         const parsedData = {} as T
         for (const key in schema) {
-            try {
-                parsedData[key] = schema[key].parse(formData[key].value)
-            } catch (error) {
-                if (error instanceof ZodError) {
-                    error.errors.forEach((err) => {
-                        if (key && key in formData) {
-                            setError(key, err.message)
-                        }
-                    })
+            if (schema.hasOwnProperty(key)) {
+                try {
+                    parsedData[key] = schema[key].parse(formData[key].value)
+                } catch (error) {
+                    if (error instanceof ZodError) {
+                        error.errors.forEach((err) => {
+                            if (key && key in formData) {
+                                setError(key, err.message)
+                            }
+                        })
+                    }
                 }
             }
         }
@@ -78,7 +88,9 @@ export function useForm<T>(initialData: T, schema: FormSchema<T>) {
     useEffect(() => {
         try {
             for (const key in schema) {
-                schema[key].parse(formData[key].value)
+                if (schema.hasOwnProperty(key)) {
+                    schema[key].parse(formData[key].value)
+                }
             }
             setIsValid(true)
         } catch (error) {
@@ -92,6 +104,7 @@ export function useForm<T>(initialData: T, schema: FormSchema<T>) {
         validate,
         isValid,
         setError,
+        reset,
     }
 }
 
@@ -120,8 +133,8 @@ export function useFormSteps<T, K extends keyof T>(steps: K[][], schema: FormSch
         return stepHasErrors ? false : true
     }
 
-    function next(skipValidation?: boolean) {
-        const isStepValid = skipValidation ? true : validateStep()
+    function next() {
+        const isStepValid = validateStep()
         if (!isStepValid) {
             return
         }

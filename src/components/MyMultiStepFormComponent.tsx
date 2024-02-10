@@ -27,7 +27,7 @@ const userSchema: FormSchema<User> = {
 }
 
 function MyMultiStepFormComponent() {
-    const { formData, handleChange, validate, setError } = useForm<User>(
+    const { formData, handleChange, validate, setError, reset } = useForm<User>(
         {
             first_name: '',
             last_name: '',
@@ -40,7 +40,7 @@ function MyMultiStepFormComponent() {
         userSchema,
     )
 
-    const { currentStepIndex, steps, next, prev, isLastStep } = useFormSteps(
+    const { currentStepIndex, steps, next, prev, goTo, isLastStep } = useFormSteps(
         [['first_name', 'last_name', 'email', 'nickname'], ['phone_numbers'], ['username', 'password']],
         userSchema,
         setError,
@@ -58,6 +58,8 @@ function MyMultiStepFormComponent() {
         if (!data) {
             return
         }
+        reset()
+        goTo(3)
         console.log(data)
     }
 
@@ -149,12 +151,14 @@ function MyMultiStepFormComponent() {
                 )}
 
                 {/* Navigation */}
-                <div>
-                    <button type='button' onClick={prev}>
-                        Previous
-                    </button>
-                    <button type='submit'>Next</button>
-                </div>
+                {steps.length !== currentStepIndex && (
+                    <div>
+                        <button type='button' onClick={prev}>
+                            Previous
+                        </button>
+                        <button type='submit'>Next</button>
+                    </div>
+                )}
             </form>
         </>
     )
